@@ -1,2 +1,4 @@
 # TrueSkill
-tbi
+
+## TODO
+- create dynamic build system with cmake
