@@ -1,13 +1,45 @@
 #pragma once
 
+#include <iostream>
 #include <functional>
 #include <vector>
+#include <deque>
 #include <queue>
 #include <condition_variable>
 #include <future>
 #include <atomic>
+#include <memory>
 
 namespace ts {
+
+class worker_thread {
+public:
+	worker_thread() = delete;
+	
+	template<typename T>
+	explicit worker_thread(T&& t);
+
+	~worker_thread() = default;
+
+	void join();
+
+private:
+	std::thread m_thread {nullptr};
+	unsigned int m_threadnumber;
+};
+
+template<typename T>
+inline worker_thread::worker_thread(T&& t)
+	: m_thread{std::forward<T>(t)} {
+
+	static int threadnumber_count = 1;
+	m_threadnumber = threadnumber_count;
+	++threadnumber_count;
+}
+
+inline void worker_thread::join() {
+	m_thread.join();
+}
 
 /**
 * A standard thread pool for n-cores
@@ -37,7 +69,7 @@ private:
 
 	std::condition_variable m_worker_condvar;
 	std::mutex m_worker_cond_mutex;
-	std::vector<std::thread> m_worker_threads;
+	std::vector<std::unique_ptr<worker_thread>> m_worker_threads;
 
 	std::queue<std::function<void()>> m_queue;
 };

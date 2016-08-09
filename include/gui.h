@@ -23,7 +23,7 @@ class gui
 {
 public:
 	gui(ts_central* central);
-	~gui() = default;
+	virtual ~gui() = default;
 
 	gui(const gui&) = delete;
 	gui& operator=(const gui&) = delete;

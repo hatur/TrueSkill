@@ -24,7 +24,7 @@ thread_pool::thread_pool()
 
 	// Num cores -1 because the main loop is running on one core
 	for (unsigned int i = 0; i < m_num_extra_cores + 1; ++i) {
-		m_worker_threads.emplace_back(std::thread([this] {
+		m_worker_threads.push_back(std::make_unique<worker_thread>([this] {
 			while (true) {
 				std::function<void()> task;
 				{
@@ -55,7 +55,7 @@ thread_pool::~thread_pool() {
 	m_worker_condvar.notify_all();
 
 	for (auto& thread : m_worker_threads) {
-		thread.join();
+		thread->join();
 	}
 
 	//std::cout << "~thread_pool(): successfully joined all threads" << std::endl;

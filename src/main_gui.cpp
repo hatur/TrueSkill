@@ -27,8 +27,8 @@ void main_gui::build() {
 
 	auto theme = std::make_shared<tgui::Theme>("data/theme/default.tg");
 
-	tgui::ToolTip::setTimeToDisplay(sf::seconds(2));
-	tgui::ToolTip::setDistanceToMouse({10.f, 10.f});
+	//tgui::ToolTip::setTimeToDisplay(sf::seconds(2));
+	//tgui::ToolTip::setDistanceToMouse({10.f, 10.f});
 
 	tgui::Panel::Ptr search_panel = theme->load("SearchPanel");
 	search_panel->setPosition(panel_padding_outer, panel_padding_outer);
@@ -187,9 +187,15 @@ void main_gui::build() {
 
 	search_panel->add(search_button);
 
+	auto tooltip = std::make_shared<tgui::Label>();
+	tooltip->setText("LUL PLS");
+	tooltip->setSize(54, 54);
+
 	auto button = std::make_shared<tgui::Button>();
 	button->setText(sf::String("Switch"));
 	button->setPosition(0, get_central()->get_renderwindow()->getSize().y - button->getSize().y);
+	button->setToolTip(tooltip);
+	//button->askToolTip({500, 500});
 	//button->connect("pressed", [this] { show(gui_type::test_screen); });
 
 	get_gui().add(button);
