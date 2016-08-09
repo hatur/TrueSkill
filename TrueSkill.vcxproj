@@ -74,7 +74,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;C:\Cpp_VS\sfml-2.3.2\32\include;C:\Cpp_VS\TGUI-0.7\include;C:\Cpp_VS\poco-1.7.4-all\XML\include;C:\Cpp_VS\poco-1.7.4-all\Util\include;C:\Cpp_VS\poco-1.7.4-all\NetSSL_OpenSSL\include;C:\Cpp_VS\poco-1.7.4-all\Net\include;C:\Cpp_VS\poco-1.7.4-all\JSON\include;C:\Cpp_VS\poco-1.7.4-all\Foundation\include;C:\Cpp_VS\poco-1.7.4-all\Crypto\include;C:\Cpp_VS\poco-1.7.4-all\CppUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;C:\Cpp_VS\sfml-2.3.2\32\include;C:\Cpp_VS\TGUI-0.7\include;C:\Cpp_VS\openssl_precompiled102h\include;C:\Cpp_VS\poco-1.7.4-all\XML\include;C:\Cpp_VS\poco-1.7.4-all\Util\include;C:\Cpp_VS\poco-1.7.4-all\NetSSL_OpenSSL\include;C:\Cpp_VS\poco-1.7.4-all\Net\include;C:\Cpp_VS\poco-1.7.4-all\JSON\include;C:\Cpp_VS\poco-1.7.4-all\Foundation\include;C:\Cpp_VS\poco-1.7.4-all\Crypto\include;C:\Cpp_VS\poco-1.7.4-all\CppUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>TS_DEEPDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\Cpp_VS\sfml-2.3.2\32\lib;C:\Cpp_VS\TGUI-0.7\lib;C:\Cpp_VS\poco-1.7.4-all\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -96,7 +97,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;C:\Cpp_VS\TGUI-0.7\include;C:\Cpp_VS\sfml-2.3.2\32\include;C:\Cpp_VS\poco-1.7.4-all\XML\include;C:\Cpp_VS\poco-1.7.4-all\Util\include;C:\Cpp_VS\poco-1.7.4-all\NetSSL_OpenSSL\include;C:\Cpp_VS\poco-1.7.4-all\Net\include;C:\Cpp_VS\poco-1.7.4-all\JSON\include;C:\Cpp_VS\poco-1.7.4-all\Foundation\include;C:\Cpp_VS\poco-1.7.4-all\Crypto\include;C:\Cpp_VS\poco-1.7.4-all\CppUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;C:\Cpp_VS\TGUI-0.7\include;C:\Cpp_VS\sfml-2.3.2\32\include;C:\Cpp_VS\openssl_precompiled102h\include;C:\Cpp_VS\poco-1.7.4-all\XML\include;C:\Cpp_VS\poco-1.7.4-all\Util\include;C:\Cpp_VS\poco-1.7.4-all\NetSSL_OpenSSL\include;C:\Cpp_VS\poco-1.7.4-all\Net\include;C:\Cpp_VS\poco-1.7.4-all\JSON\include;C:\Cpp_VS\poco-1.7.4-all\Foundation\include;C:\Cpp_VS\poco-1.7.4-all\Crypto\include;C:\Cpp_VS\poco-1.7.4-all\CppUnit\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -120,10 +121,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\conc_lock.cpp" />
+    <ClCompile Include="src\gui.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\main_gui.cpp" />
+    <ClCompile Include="src\armory_client.cpp" />
+    <ClCompile Include="src\raid_data.cpp" />
+    <ClCompile Include="src\thread_pool.cpp" />
+    <ClCompile Include="src\ts_central.cpp" />
+    <ClCompile Include="src\ts_exception.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\conc_lock.h" />
     <ClInclude Include="include\config.h" />
+    <ClInclude Include="include\gui.h" />
+    <ClInclude Include="include\main_gui.h" />
+    <ClInclude Include="include\armory_client.h" />
+    <ClInclude Include="include\raid_data.h" />
+    <ClInclude Include="include\thread_pool.h" />
+    <ClInclude Include="include\ts_central.h" />
+    <ClInclude Include="include\ts_exception.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
