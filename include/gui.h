@@ -9,6 +9,7 @@
 
 #include "ts_exception.h"
 #include "conc_lock.h"
+#include "tooltip_wrapper.h"
 
 namespace ts {
 
@@ -44,7 +45,12 @@ public:
 protected:
 	virtual void build() = 0;
 
+	void register_tooltip(std::unique_ptr<tooltip_wrapper> tooltip);
+
+	// TODO: this is currently not thread safe and on insecure use, consider passing the variables directly as copy so no external access is needed
+	// this is also pretty important!
 	ts_central* get_central();
+
 	std::recursive_mutex& get_mutex();
 	tgui::Gui& get_gui();
 
@@ -54,6 +60,8 @@ private:
 	ts_central* m_central;
 	tgui::Gui m_gui;
 	mutable std::recursive_mutex m_mutex;
+
+	std::vector<std::unique_ptr<tooltip_wrapper>> m_tooltips;
 };
 
 inline void gui::cl_lock() const {
@@ -62,6 +70,10 @@ inline void gui::cl_lock() const {
 
 inline void gui::cl_unlock() const {
 	m_mutex.unlock();
+}
+
+inline void gui::register_tooltip(std::unique_ptr<tooltip_wrapper> tooltip) {
+	m_tooltips.push_back(std::move(tooltip));
 }
 
 inline ts_central* gui::get_central() {

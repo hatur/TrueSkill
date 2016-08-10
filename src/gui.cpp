@@ -20,6 +20,11 @@ void gui::init() {
 
 void gui::draw() {
 	auto lock = conc_lock<gui>{this};
+
+	for (const auto& tooltip : m_tooltips) {
+		tooltip->update();
+	}
+
 	m_gui.draw();
 }
 

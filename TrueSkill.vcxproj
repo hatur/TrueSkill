@@ -127,7 +127,9 @@
     <ClCompile Include="src\main_gui.cpp" />
     <ClCompile Include="src\armory_client.cpp" />
     <ClCompile Include="src\raid_data.cpp" />
+    <ClCompile Include="src\style_theme.cpp" />
     <ClCompile Include="src\thread_pool.cpp" />
+    <ClCompile Include="src\tooltip_wrapper.cpp" />
     <ClCompile Include="src\ts_central.cpp" />
     <ClCompile Include="src\ts_exception.cpp" />
   </ItemGroup>
@@ -138,7 +140,9 @@
     <ClInclude Include="include\main_gui.h" />
     <ClInclude Include="include\armory_client.h" />
     <ClInclude Include="include\raid_data.h" />
+    <ClInclude Include="include\style_theme.h" />
     <ClInclude Include="include\thread_pool.h" />
+    <ClInclude Include="include\tooltip_wrapper.h" />
     <ClInclude Include="include\ts_central.h" />
     <ClInclude Include="include\ts_exception.h" />
   </ItemGroup>

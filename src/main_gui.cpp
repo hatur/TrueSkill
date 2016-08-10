@@ -5,6 +5,7 @@
 
 #include "conc_lock.h"
 #include "raid_data.h"
+#include "style_theme.h"
 
 namespace ts {
 
@@ -21,18 +22,16 @@ void main_gui::build() {
 		return;
 	}
 
-	const int panel_padding_outer = 8;
-
 	auto lock = conc_lock<gui>(this);
 
-	auto theme = std::make_shared<tgui::Theme>("data/theme/default.tg");
+	m_tgui_theme = std::make_shared<tgui::Theme>("data/theme/default.tg");
 
-	//tgui::ToolTip::setTimeToDisplay(sf::seconds(2));
-	//tgui::ToolTip::setDistanceToMouse({10.f, 10.f});
+	tgui::ToolTip::setTimeToDisplay(sf::seconds(2));
+	tgui::ToolTip::setDistanceToMouse({10.f, 10.f});
 
-	tgui::Panel::Ptr search_panel = theme->load("SearchPanel");
-	search_panel->setPosition(panel_padding_outer, panel_padding_outer);
-	search_panel->setSize(sf::Vector2f{get_central()->get_renderwindow()->getSize()}.x - panel_padding_outer * 2, 120 - panel_padding_outer * 2);
+	tgui::Panel::Ptr search_panel = m_tgui_theme->load("SearchPanel");
+	search_panel->setPosition(style_theme::main_layout_padding, style_theme::main_layout_padding);
+	search_panel->setSize(sf::Vector2f{get_central()->get_renderwindow()->getSize()}.x - style_theme::main_layout_padding * 2, 112 - style_theme::main_layout_padding * 2);
 
 	get_gui().add(search_panel);
 
@@ -148,122 +147,186 @@ void main_gui::build() {
 	search_button->setText("search");
 
 	search_button->connect("Pressed", [this, region_combo, server_search_field, name_edit, raiddata] {
+		clear_raid_layout();
+
+		// Maybe add waiting layout here
+		build_wait_layout();
+
 		auto result = get_central()->get_threadpool()->job([this, region_combo, server_search_field, name_edit, raiddata] {
 			try {
+				push_wait_message(">> retrieving armory data..");
 				get_central()->get_mashery_client()->retrieve_raid_data(region_combo->getSelectedItem(), server_search_field->getText(), name_edit->getText(), raiddata);
+				push_wait_message(">> retrieving warcraftlogs information (simulation)..");
+				std::this_thread::sleep_for(std::chrono::seconds(3));
 			}
 			catch (const ts_exception& ex) {
 				std::cout << "Couldn't retrieve armory data, reason: " << ex.what() << std::endl;
+				push_wait_message(">> couldn't retrieve armory data (armory down?) try again..");
 				return;
 			}
 
-			auto lock = conc_lock<gui>(this);
+			remove_wait_layout();
+
+			auto lock = conc_lock<gui>(this);			
 
 			{
 				auto raid_lock = conc_lock<raid_data>(raiddata.get());
 
-				auto* raid_main_panel = dynamic_cast<tgui::Panel*>(get_gui().get("raid_main_layout").get());
-				auto widgetNames = raid_main_panel->getWidgetNames();
-				for (const auto& name : widgetNames) {
-					std::cout << "Widget with name " << name.toAnsiString() << std::endl;
+				tgui::Panel::Ptr raid_main_layout = m_tgui_theme->load("RaidOuter");
+				raid_main_layout->setPosition(style_theme::main_layout_padding, 112);
+				raid_main_layout->setSize(get_central()->get_renderwindow()->getSize().x - style_theme::main_layout_padding * 2
+					, get_gui().getWindow()->getSize().y - style_theme::main_layout_padding - raid_main_layout->getPosition().y);
 
-					auto raid_name = name;
+				int num_x = 0;
+				for (const auto& raid : *raiddata->get_raids()) {
+					const float panel_width = 200;
+					const float raid_instance_panel_inside_padding = 2;
+					const float raid_instance_panel_section_padding = 6;
 
-					raid_name.replace(sf::String{"_panel"}, sf::String{""});
-					auto* raid = raiddata->get_raid(raid_name);
+					tgui::Panel::Ptr raid_instance_panel = m_tgui_theme->load("RaidInner");
+					raid_main_layout->add(raid_instance_panel, raid.m_raid_name + "_panel");
+					raid_instance_panel->setPosition(4 + num_x * panel_width + num_x * 4, 4);
+					raid_instance_panel->setSize(panel_width, raid_instance_panel->getParent()->getSize().y - 8);
 
-					auto* raid_instance_panel = dynamic_cast<tgui::Panel*>(raid_main_panel->get(name).get());
-					auto* acc_progress_bar = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("armory_acc_progress_bar").get());
+					auto raid_icon = std::make_shared<tgui::Picture>();
+					raid_icon->setTexture(raid.m_icon_path);
+					raid_icon->setPosition(raid_instance_panel_inside_padding, raid_instance_panel_inside_padding);
+					raid_icon->setSize(48, 48);
+					raid_icon->setSmooth(true);
 
-					const float mythic_ach_progression = static_cast<float>(raid->get_armory_num_killed_bosses_acc()) * 100.f / static_cast<float>(raid->get_total_bosses());
+					raid_instance_panel->add(raid_icon);
+
+					tgui::Label::Ptr raid_name = m_tgui_theme->load("RaidHeading");
+					raid_name->setText(raid.m_raid_name);
+					raid_name->setPosition(raid_icon->getPosition().x + raid_icon->getSize().x + raid_instance_panel_inside_padding, 0);
+					raid_name->setTextSize(16);
+
+					raid_instance_panel->add(raid_name);
+
+					tgui::Label::Ptr mythic_armory_progress_label = m_tgui_theme->load("RaidInfo");
+					mythic_armory_progress_label->setText("Mythic Account progression:");
+					mythic_armory_progress_label->setPosition(raid_icon->getPosition() + sf::Vector2f{0.f, raid_icon->getSize().y} +sf::Vector2f{0.f, raid_instance_panel_section_padding});
+					mythic_armory_progress_label->setTextSize(10);
+
+					raid_instance_panel->add(mythic_armory_progress_label);
+
+					auto mythic_armory_progress_bar = std::make_shared<tgui::ProgressBar>();
+					mythic_armory_progress_bar->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
+					mythic_armory_progress_bar->setMinimum(0);
+					mythic_armory_progress_bar->setMaximum(100);
+					mythic_armory_progress_bar->setSize(100, 12);
+					mythic_armory_progress_bar->setPosition(mythic_armory_progress_label->getPosition() + sf::Vector2f{0.f, static_cast<float>(mythic_armory_progress_label->getTextSize()) + 2.f} +sf::Vector2f{0.f, raid_instance_panel_inside_padding});
 					
-					std::cout << "mythic progress: " << mythic_ach_progression << " percent" << std::endl;
+					const float mythic_ach_progression = static_cast<float>(raid.get_armory_num_killed_bosses_acc()) * 100.f / static_cast<float>(raid.get_total_bosses());
 
-					acc_progress_bar->setValue(static_cast<unsigned int>(mythic_ach_progression));
+					mythic_armory_progress_bar->setValue(static_cast<unsigned int>(mythic_ach_progression));
+
+					raid_instance_panel->add(mythic_armory_progress_bar, "armory_acc_progress_bar");
+
+					tgui::Panel::Ptr mythic_armory_progress_bar_tooltip = m_tgui_theme->load("ToolTip");
+
+					int num_ach = 0;
+					float widest_label = 0.f;
+					for (const auto achievement : raid.m_armory_achievements) {
+						if (achievement.m_achievement_type != armory_raid_achievement_type::mythic_boss) {
+							continue;
+						}
+
+						const auto full_label_text = [&achievement] {
+							if (achievement.m_unlocked) {
+								return sf::String{"[killed] " + achievement.m_achievement_name};
+							}
+							else {
+								return sf::String{"[open] " + achievement.m_achievement_name};
+							}
+						}();
+
+						tgui::Label::Ptr label = [this, &achievement] {
+							if (achievement.m_unlocked) {
+								return m_tgui_theme->load("ToolTip_Killed");
+							}
+							else {
+								return m_tgui_theme->load("ToolTip_Open");
+							}
+						}();
+
+						label->setTextSize(10);
+						label->setText(full_label_text);
+						label->setPosition(2, num_ach * 12.f);
+
+						const auto label_width = label->getSize().x;
+						if (label_width > widest_label) {
+							widest_label = label_width;
+						}
+
+						mythic_armory_progress_bar_tooltip->add(label);
+
+						++num_ach;
+					}
+
+					mythic_armory_progress_bar_tooltip->setSize(widest_label * 2.f, num_ach * 12.f);
+
+					auto mythic_armory_progress_bar_tooltip_wrapper = std::make_unique<tooltip_wrapper>(&get_gui(), mythic_armory_progress_bar, mythic_armory_progress_bar_tooltip);
+					register_tooltip(std::move(mythic_armory_progress_bar_tooltip_wrapper));
+
+					++num_x;
 				}
+
+				get_gui().add(raid_main_layout, "raid_main_layout");
 			}
 		});
 	});
 
 	search_panel->add(search_button);
-
-	auto tooltip = std::make_shared<tgui::Label>();
-	tooltip->setText("LUL PLS");
-	tooltip->setSize(54, 54);
-
-	auto button = std::make_shared<tgui::Button>();
-	button->setText(sf::String("Switch"));
-	button->setPosition(0, get_central()->get_renderwindow()->getSize().y - button->getSize().y);
-	button->setToolTip(tooltip);
-	//button->askToolTip({500, 500});
-	//button->connect("pressed", [this] { show(gui_type::test_screen); });
-
-	get_gui().add(button);
-
-	tgui::Panel::Ptr raid_main_layout = theme->load("RaidOuter");
-	raid_main_layout->setPosition(panel_padding_outer, 120);
-	raid_main_layout->setSize(get_central()->get_renderwindow()->getSize().x - panel_padding_outer * 2, 500);
-
-	{
-		// Here we build the raid info gui
-
-		auto lock = conc_lock<raid_data>(raiddata.get());
-		int num_x = 0;
-		for (const auto& raid : *raiddata->get_raids()) {
-			const float panel_width = 200;
-			const float raid_instance_panel_inside_padding = 2;
-			const float raid_instance_panel_section_padding = 6;
-
-			tgui::Panel::Ptr raid_instance_panel = theme->load("RaidInner");
-			raid_main_layout->add(raid_instance_panel, raid.m_raid_name + "_panel");
-			raid_instance_panel->setPosition(4 + num_x * panel_width + num_x * 4, 4);
-			raid_instance_panel->setSize(panel_width, raid_instance_panel->getParent()->getSize().y - 8);
-
-			auto raid_icon = std::make_shared<tgui::Picture>();
-			raid_icon->setTexture(raid.m_icon_path);
-			raid_icon->setPosition(raid_instance_panel_inside_padding, raid_instance_panel_inside_padding);
-			raid_icon->setSize(48, 48);
-			raid_icon->setSmooth(true);
-
-			raid_instance_panel->add(raid_icon);
-
-			tgui::Label::Ptr raid_name = theme->load("RaidHeading");
-			raid_name->setText(raid.m_raid_name);
-			raid_name->setPosition(raid_icon->getPosition().x + raid_icon->getSize().x + raid_instance_panel_inside_padding, 0);
-			raid_name->setTextSize(16);
-
-			raid_instance_panel->add(raid_name);
-
-			tgui::Label::Ptr mythic_armory_progress_label = theme->load("RaidInfo");
-			mythic_armory_progress_label->setText("Mythic Account progression:");
-			mythic_armory_progress_label->setPosition(raid_icon->getPosition() + sf::Vector2f{0.f, raid_icon->getSize().y} + sf::Vector2f{0.f, raid_instance_panel_section_padding});
-			mythic_armory_progress_label->setTextSize(10);
-
-			raid_instance_panel->add(mythic_armory_progress_label);
-
-			auto mythic_armory_progress_tooltip = std::make_shared<tgui::Picture>("data/img/highmaul.png");
-
-			auto mythic_armory_progress_bar = std::make_shared<tgui::ProgressBar>();
-			mythic_armory_progress_bar->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
-			mythic_armory_progress_bar->setMinimum(0);
-			mythic_armory_progress_bar->setMaximum(100);
-			mythic_armory_progress_bar->setSize(100, 12);
-			mythic_armory_progress_bar->setPosition(mythic_armory_progress_label->getPosition() + sf::Vector2f{0.f, static_cast<float>(mythic_armory_progress_label->getTextSize()) + 2.f} + sf::Vector2f{0.f, raid_instance_panel_inside_padding});
-			mythic_armory_progress_bar->setValue(0);
-			mythic_armory_progress_bar->setToolTip(mythic_armory_progress_tooltip);
-
-			raid_instance_panel->add(mythic_armory_progress_bar, "armory_acc_progress_bar");
-
-			++num_x;
-		}
-	}
-
-	get_gui().add(raid_main_layout, "raid_main_layout");
 }
 
 void main_gui::push_realm_list(std::vector<realm>&& realmlist) {
 	auto lock = conc_lock<gui>(this);
 	m_cached_realmlist = std::move(realmlist);
+}
+
+void main_gui::clear_raid_layout() {
+	auto gui_lock = conc_lock<gui>(this);
+
+	auto raid_main_layout = get_gui().get("raid_main_layout");
+
+	if (raid_main_layout != nullptr) {
+		get_gui().remove(raid_main_layout);
+	}
+}
+
+void main_gui::build_wait_layout() {
+	auto gui_lock = conc_lock<gui>(this);
+
+	tgui::Panel::Ptr wait_layout = m_tgui_theme->load("WaitLayout");
+	wait_layout->setPosition(style_theme::main_layout_padding, 120);
+	wait_layout->setSize(get_central()->get_renderwindow()->getSize().x - style_theme::main_layout_padding * 2, get_gui().getWindow()->getSize().y - style_theme::main_layout_padding - wait_layout->getPosition().y);
+
+	tgui::Label::Ptr wait_label = m_tgui_theme->load("WaitLabel");
+	wait_label->setTextSize(24);
+	wait_label->setText(">> waiting for input");
+	wait_label->setPosition(sf::Vector2f{20.f, (wait_layout->getSize().y * 0.5f) - (wait_label->getSize().y * 0.5f)});
+
+	wait_layout->add(wait_label, "wait_label");
+
+	get_gui().add(wait_layout, "wait_layout");
+}
+
+void main_gui::remove_wait_layout() {
+	auto gui_lock = conc_lock<gui>(this);
+
+	auto wait_layout = get_gui().get("wait_layout");
+
+	get_gui().remove(wait_layout);
+
+}
+
+void main_gui::push_wait_message(sf::String message) {
+	auto gui_lock = conc_lock<gui>(this);
+
+	auto wait_label = get_gui().get("wait_label", true);
+
+	dynamic_cast<tgui::Label*>(wait_label.get())->setText(std::move(message));
 }
 
 } // namespace ts
