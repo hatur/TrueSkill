@@ -1,4 +1,3 @@
-#include "ts_central.h"
 #include "armory_client.h"
 
 #include <iostream>
@@ -7,6 +6,10 @@
 #include <fstream>
 
 #include <Poco/Path.h>
+#include <Poco/Net/HTTPSClientSession.h>
+#include <Poco/JSON/Parser.h>
+#include <Poco/JSON/JSONException.h>
+#include <Poco/Timestamp.h>
 #include <Poco/Exception.h>
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
@@ -16,14 +19,8 @@
 #include "gsl/gsl.h"
 #include "config.h"
 #include "ts_exception.h"
-#include "conc_lock.h"
 
 namespace ts {
-
-armory_client::armory_client(ts_central* central)
-	: m_central{central} {
-
-}
 
 std::vector<realm> armory_client::retrieve_realm_list(std::string region) {
 	using namespace Poco;
@@ -41,13 +38,7 @@ std::vector<realm> armory_client::retrieve_realm_list(std::string region) {
 
 	std::string content;
 
-	try {
-		content = send_mashery_request(uri);
-	}
-	catch (const ts_exception& ex) {
-		std::cout << "retrieve_realm_list(): Couldn't retrieve realm list, reason: " << ex.what() << std::endl;
-		return std::vector<realm>{};
-	}
+	content = send_mashery_request(uri);
 
 	try {
 		Parser parser;
@@ -73,35 +64,39 @@ std::vector<realm> armory_client::retrieve_realm_list(std::string region) {
 			UnicodeConverter::toUTF8(country, utf8_country);
 			UnicodeConverter::toUTF8(name, utf8_name);
 
-			realmlist.emplace_back(std::move(utf8_country), std::move(utf8_name));
+			realmlist.emplace_back(utf8_country, utf8_name);
 		}
 
 		return realmlist;
 	}
 	catch (const Poco::Exception& ex) {
-		std::cout << "retrieve_realm_list(): Error parsing json data, reason: " << ex.what() << std::endl;
-		return std::vector<realm>{};
+		auto exceptiontext = std::string{"retrieve_realm_list(): Error parsing json data, reason: "} + ex.displayText();
+		throw ts_exception{exceptiontext.c_str()};
 	}
 
 	// test
 	return std::vector<realm>{};
 }
 
-void armory_client::retrieve_raid_data(std::string region, std::string server, std::string name, std::shared_ptr<raid_data> raiddata) {
+void armory_client::retrieve_raid_data(sf::String region, sf::String server, sf::String name, raid_data& io_raiddata_copy) {
 	using namespace Poco;
 	using namespace Poco::JSON;
+
+	auto utf8_name = std::string{};
+	auto utf8_server = std::string{};
+
+	Poco::UnicodeConverter::toUTF8(server.toWideString(), utf8_server);
+	Poco::UnicodeConverter::toUTF8(name.toWideString(), utf8_name);
 	
 	URI uri;
 	uri.setScheme("https");
 	uri.setAuthority(region + ".api.battle.net");
-	uri.setPath("/wow/character/" + server + "/" + name);
+	uri.setPath("/wow/character/" + utf8_server + "/" + utf8_name);
 	uri.addQueryParameter("fields", "achievements, progression");
 	uri.addQueryParameter("locale", "en_US");
 	uri.addQueryParameter("apikey", "ejzptrf2wu4ud2eajhh44v3nsym23rrv");
 
-	std::string content;
-	
-	content = send_mashery_request(uri);
+	const auto content = send_mashery_request(uri);
 
 	//std::wstring utf8_content;
 
@@ -124,9 +119,7 @@ void armory_client::retrieve_raid_data(std::string region, std::string server, s
 
 		std::cout << "Found " << achievements_completed->size() << " achievements!" << std::endl;
 
-		auto lock = conc_lock<raid_data>(raiddata.get());
-
-		for (auto& raid : *raiddata->get_raids()) {
+		for (auto& raid : *io_raiddata_copy.get_raids()) {
 			for (auto& achievement : raid.m_armory_achievements) {
 				auto it = std::find(achievements_completed->begin(), achievements_completed->end(), achievement.m_achievement_id);
 
@@ -144,7 +137,7 @@ void armory_client::retrieve_raid_data(std::string region, std::string server, s
 		auto progression_data = json_object->get("progression").extract<Object::Ptr>();
 		auto progression_raids_data = progression_data->get("raids").extract<Array::Ptr>();
 
-		for (auto& raid : *raiddata->get_raids()) {
+		for (auto& raid : *io_raiddata_copy.get_raids()) {
 			auto it = std::find_if(progression_raids_data->begin(), progression_raids_data->end(), [raid] (const Dynamic::Var& var) {
 				auto raid_obj = var.extract<Object::Ptr>();
 				return raid_obj->get("name").extract<std::string>() == raid.m_raid_name;
@@ -159,7 +152,7 @@ void armory_client::retrieve_raid_data(std::string region, std::string server, s
 
 			std::cout << "Raid has " << boss_arr->size() << " bosses" << std::endl;
 
-			for (auto& statistics : raid.m_armory_statistics) {
+			for (auto& statistics : raid.m_armory_boss_statistics) {
 				std::cout << "Searching for " << statistics.m_boss_name.toAnsiString() << std::endl;
 				auto it2 = std::find_if(boss_arr->begin(), boss_arr->end(), [&statistics] (const Dynamic::Var& var) {
 					return var.extract<Object::Ptr>()->get("name").extract<std::string>() == statistics.m_boss_name;
@@ -195,6 +188,7 @@ std::string armory_client::send_mashery_request(const Poco::URI& uri) {
 	}
 
 	HTTPSClientSession session{uri.getHost(), uri.getPort(), ts::config::sslContext};
+	session.setTimeout(Poco::Timespan{10, 0});
 
 	bool request_success = false;
 	std::string content;

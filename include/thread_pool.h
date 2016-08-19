@@ -56,11 +56,14 @@ public:
 	thread_pool(thread_pool&& other) = delete;
 	thread_pool& operator= (thread_pool&& other) = delete;
 
-	// add task to the thread pool
+	// add task to the thread pool, thread safe
 	template <typename F, typename... Args>
 	auto job(F&& f, Args&&... args);
 
+	// thread safe
 	unsigned int get_total_cores() const;
+
+	// thread safe
 	unsigned int get_num_extra_cores() const;
 
 private:
@@ -68,6 +71,7 @@ private:
 	std::atomic<bool> m_shutdown_requested;
 
 	std::condition_variable m_worker_condvar;
+	mutable std::mutex m_threadpool_mutex;
 	std::mutex m_worker_cond_mutex;
 	std::vector<std::unique_ptr<worker_thread>> m_worker_threads;
 
@@ -77,6 +81,8 @@ private:
 template<typename F, typename... Args>
 auto thread_pool::job(F&& f, Args&&... args) {
 	using return_type = std::result_of_t<F(Args...)>;
+
+	std::lock_guard<std::mutex> lock{m_threadpool_mutex};
 
 	auto task = std::make_shared<std::packaged_task<return_type()>>(std::bind(std::forward<F>(f), std::forward<Args>(args)...));
 
@@ -92,6 +98,7 @@ auto thread_pool::job(F&& f, Args&&... args) {
 	}
 
 	m_worker_condvar.notify_one();
+
 	return res;
 }
 

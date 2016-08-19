@@ -19,8 +19,6 @@ void raid_data::init_from_file() {
 	using namespace Poco;
 	using namespace Poco::JSON;
 
-	auto lock = conc_lock<raid_data>(this);
-
 	m_initialized = false;
 
 	std::ifstream file{"data/raid_data.json", std::ios::in | std::ios::binary};
@@ -34,7 +32,7 @@ void raid_data::init_from_file() {
 	std::stringstream ss;
 	ss << file.rdbuf();
 
-	std::cout << "Content of json: " << std::endl << ss.str() << std::endl;
+	//std::cout << "Content of json: " << std::endl << ss.str() << std::endl;
 
 	try {
 		Parser parser;
@@ -44,25 +42,31 @@ void raid_data::init_from_file() {
 
 		auto raids = json_object->get("raids").extract<Array::Ptr>();
 
-		std::cout << "Found " << raids->size() << " raids" << std::endl;
+		//std::cout << "Found " << raids->size() << " raids" << std::endl;
 
 		for (const auto& raid : *raids) {
 			auto raid_data = raid.extract<Object::Ptr>();
-			std::cout << "loading data for raid with name: " << raid_data->get("raid_name").extract<std::string>() << std::endl;
+			//std::cout << "loading data for raid with name: " << raid_data->get("raid_name").extract<std::string>() << std::endl;
 
 			wow_raid wowraid;
 			wowraid.m_raid_name = raid_data->get("raid_name").extract<std::string>();
+			wowraid.m_default_raid = raid_data->get("raid_default_raid").extract<int>() == 1;
 			wowraid.m_icon_path = std::string{"data/img/" + raid_data->get("raid_icon_name").extract<std::string>()};
+			wowraid.m_wcl_zone_id = static_cast<unsigned int>(raid_data->get("raid_wcl_id").extract<int>());
 			
 			auto bosses = raid_data->get("raid_bosses").extract<Array::Ptr>();
 			for (const auto& boss : *bosses) {
 				auto boss_data = boss.extract<Object::Ptr>();
-				std::cout << "* boss: " << boss_data->get("boss_name").extract<std::string>() << std::endl;
+
+				const auto wcl_boss_id = static_cast<unsigned int>(boss_data->get("boss_wcl_id").extract<int>());
+				const auto boss_name = boss_data->get("boss_name").extract<std::string>();
+
+				wowraid.m_wcl_bosses.insert(std::make_pair(boss_name, wcl_boss_id));
 
 				armory_boss_statistics boss_statistics{};
-				boss_statistics.m_boss_name = boss_data->get("boss_name").extract<std::string>();
+				boss_statistics.m_boss_name = boss_name;
 
-				wowraid.m_armory_statistics.push_back(std::move(boss_statistics));
+				wowraid.m_armory_boss_statistics.push_back(std::move(boss_statistics));
 			}
 
 			auto achievements = raid_data->get("raid_achievements").extract<Array::Ptr>();
@@ -101,7 +105,7 @@ void raid_data::init_from_file() {
 		}
 	}
 	catch (Exception& ex) {
-		std::cout << "Error parsing raid data, reason: " << ex.what() << std::endl;
+		std::cout << "Error parsing raid data, reason: " << ex.displayText() << std::endl;
 		m_initialized = false;
 	}
 }
@@ -112,10 +116,198 @@ wow_raid* raid_data::get_raid(const sf::String& raid_name) {
 	});
 
 	if (it == m_raids.end()) {
-		return nullptr;
+		throw ts_exception("raid_data::get_raid(sf::String): raid not found");
 	}
 
 	return &(*it);
+}
+
+wow_raid* raid_data::get_raid(unsigned int zone_id) {
+	auto it = std::find_if(m_raids.begin(), m_raids.end(), [zone_id] (wow_raid& raid) {
+		return raid.m_wcl_zone_id == zone_id;
+	});
+
+	if (it == m_raids.end()) {
+		throw ts_exception("raid_data::get_raid(uint): raid not found");
+	}
+
+	return &(*it);
+}
+
+unsigned int wow_raid::get_armory_num_killed_bosses_acc() const noexcept {
+	unsigned int killed_bosses = 0;
+	for (const auto& achievement : m_armory_achievements) {
+		if (achievement.m_achievement_type == armory_raid_achievement_type::mythic_boss && achievement.m_unlocked) {
+			++killed_bosses;
+		}
+	}
+
+	return killed_bosses;
+}
+
+unsigned int wow_raid::get_armory_num_killed_bosses_char_nhc() const noexcept {
+	unsigned int killed_bosses = 0;
+	for (const auto& statistic : m_armory_boss_statistics) {
+		if (statistic.m_num_nhc_kills > 0) {
+			++killed_bosses;
+		}
+	}
+
+	return killed_bosses;
+}
+
+unsigned int wow_raid::get_armory_num_killed_bosses_char_hc() const noexcept {
+	unsigned int killed_bosses = 0;
+	for (const auto& statistic : m_armory_boss_statistics) {
+		if (statistic.m_num_hc_kills > 0) {
+			++killed_bosses;
+		}
+	}
+
+	return killed_bosses;
+}
+
+unsigned int wow_raid::get_armory_num_killed_bosses_char_m() const noexcept {
+	unsigned int killed_bosses = 0;
+	for (const auto& statistic : m_armory_boss_statistics) {
+		if (statistic.m_num_m_kills > 0) {
+			++killed_bosses;
+		}
+	}
+
+	return killed_bosses;
+}
+
+bool warcraftlogs_top_rankings::has_avg_pct(metric _metric, boss_difficulty bossdifficulty, bool bracket) const {
+	if (bossdifficulty == boss_difficulty::lfr || bossdifficulty == boss_difficulty::normal) {
+		throw ts_exception{"warcraftlogs_top_rankings::get_avg_pct(): Unimplemented boss difficulty"};
+	}
+
+	switch (_metric) {
+		case metric::DPS:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return m_top_bracket_dps_hc.size() > 0;
+				}
+				else {
+					return m_top_overall_dps_hc.size() > 0;
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return m_top_bracket_dps_m.size() > 0;
+				}
+				else {
+					return m_top_overall_dps_m.size() > 0;
+				}
+			}
+			break;
+		case metric::HPS:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return m_top_bracket_hps_hc.size() > 0;
+				}
+				else {
+					return m_top_overall_hps_hc.size() > 0;
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return m_top_bracket_hps_m.size() > 0;
+				}
+				else {
+					return m_top_overall_hps_m.size() > 0;
+				}
+			}
+			break;
+		case metric::KRSI:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return m_top_bracket_krsi_hc.size() > 0;
+				}
+				else {
+					return m_top_overall_krsi_hc.size() > 0;
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return m_top_bracket_krsi_m.size() > 0;
+				}
+				else {
+					return m_top_overall_krsi_m.size() > 0;
+				}
+			}
+			break;
+	}
+
+	Ensures(false);
+	return false;
+}
+
+float warcraftlogs_top_rankings::get_avg_pct(metric _metric, boss_difficulty bossdifficulty, bool bracket) const {
+	if (bossdifficulty == boss_difficulty::lfr || bossdifficulty == boss_difficulty::normal) {
+		throw ts_exception{"warcraftlogs_top_rankings::get_avg_pct(): Unimplemented boss difficulty"};
+	}
+
+	switch (_metric) {
+		case metric::DPS:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_dps_hc.begin(), m_top_bracket_dps_hc.end(), 0.f) / static_cast<float>(m_top_bracket_dps_hc.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_dps_hc.begin(), m_top_overall_dps_hc.end(), 0.f) / static_cast<float>(m_top_overall_dps_hc.size());
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_dps_m.begin(), m_top_bracket_dps_m.end(), 0.f) / static_cast<float>(m_top_bracket_dps_m.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_dps_m.begin(), m_top_overall_dps_m.end(), 0.f) / static_cast<float>(m_top_overall_dps_m.size());
+				}
+			}
+			break;
+		case metric::HPS:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_hps_hc.begin(), m_top_bracket_hps_hc.end(), 0.f) / static_cast<float>(m_top_bracket_hps_hc.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_hps_hc.begin(), m_top_overall_hps_hc.end(), 0.f) / static_cast<float>(m_top_overall_hps_hc.size());
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_hps_m.begin(), m_top_bracket_hps_m.end(), 0.f) / static_cast<float>(m_top_bracket_hps_m.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_hps_m.begin(), m_top_overall_hps_m.end(), 0.f) / static_cast<float>(m_top_overall_hps_m.size());
+				}
+			}
+			break;
+		case metric::KRSI:
+			if (bossdifficulty == boss_difficulty::heroic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_krsi_hc.begin(), m_top_bracket_krsi_hc.end(), 0.f) / static_cast<float>(m_top_bracket_krsi_hc.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_krsi_hc.begin(), m_top_overall_krsi_hc.end(), 0.f) / static_cast<float>(m_top_overall_krsi_hc.size());
+				}
+			}
+			else if (bossdifficulty == boss_difficulty::mythic) {
+				if (bracket) {
+					return std::accumulate(m_top_bracket_krsi_m.begin(), m_top_bracket_krsi_m.end(), 0.f) / static_cast<float>(m_top_bracket_krsi_m.size());
+				}
+				else {
+					return std::accumulate(m_top_overall_krsi_m.begin(), m_top_overall_krsi_m.end(), 0.f) / static_cast<float>(m_top_overall_krsi_m.size());
+				}
+			}
+			break;
+	}
+
+	Ensures(false);
+	return 0.f;
 }
 
 } // namespace ts

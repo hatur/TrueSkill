@@ -20,10 +20,12 @@ thread_pool::thread_pool()
 		}
 	}();
 
-	std::cout << "thread_pool(): starting for " << m_num_extra_cores + 1 << " cores" << std::endl;
+	const auto created_threads = (m_num_extra_cores + 1) * 24;
+
+	std::cout << "thread_pool(): starting " << created_threads << " threads" << std::endl;
 
 	// Num cores -1 because the main loop is running on one core
-	for (unsigned int i = 0; i < m_num_extra_cores + 1; ++i) {
+	for (unsigned int i = 0; i < created_threads; ++i) {
 		m_worker_threads.push_back(std::make_unique<worker_thread>([this] {
 			while (true) {
 				std::function<void()> task;
