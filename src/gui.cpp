@@ -9,7 +9,7 @@ gui::gui(ts_central* central)
 
 	{
 		auto lock = conc_lock<gui>(this);
-		m_gui.setFont("data/fonts/DroidSans.ttf");
+		m_gui.setFont("../data/fonts/DroidSans.ttf");
 	}
 }
 

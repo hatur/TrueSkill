@@ -5,9 +5,14 @@
 #include <deque>
 #include <vector>
 #include <mutex>
+#include <map>
+#include <unordered_map>
+#include <sstream>
+#include <iomanip>
+#include <limits>
+#include <cmath>
 
 #include <SFML/System/String.hpp>
-#include <unordered_map>
 
 #include "conc_lock.h"
 #include "ts_exception.h"
@@ -78,6 +83,14 @@ struct warcraftlogs_top_rankings
 	std::vector<float> m_top_overall_krsi_m;
 };
 
+struct wcl_top_overall_pct_information
+{
+	bool m_has_value;
+	float m_float_value;
+	unsigned int m_uint_value;
+	sf::String m_rounded_string_value;
+};
+
 struct warcraftlogs_median_rankings
 {
 	sf::String m_boss_name;
@@ -110,7 +123,9 @@ struct wow_raid
 	bool m_default_raid;
 	unsigned int m_wcl_zone_id;
 	sf::String m_icon_path;
+	bool m_has_brackets;
 	std::unordered_map<std::string, unsigned int> m_wcl_bosses;
+	std::map<unsigned int, sf::String> m_wcl_brackets;
 
 	std::vector<armory_raid_achievements> m_armory_achievements;
 	std::vector<armory_boss_statistics> m_armory_boss_statistics;
@@ -191,5 +206,14 @@ inline std::deque<wow_raid>* raid_data::get_raids() {
 inline const std::deque<wow_raid>* raid_data::get_raids() const {
 	return &m_raids;
 }
+
+template<typename T>
+std::enable_if_t<std::is_same<T, unsigned int>::value || std::is_same<T, int>::value, T> number_of_digits(T i) {
+	return i > 0 ? static_cast<int>(log10(static_cast<double>(i))) + 1 : 1;
+}
+
+// @brief calculates the average pct value for all bosses with these options
+// @return 1. (bool): If there is a value, no kills means no value, 2. (float) 2 decimal rounded value of avg percentage for these options
+wcl_top_overall_pct_information get_top_overall_avg_pct(const std::vector<warcraftlogs_top_rankings>& top_rankings, metric _metric, boss_difficulty bossdifficulty, bool bracket);
 
 } // namespace ts

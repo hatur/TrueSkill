@@ -51,7 +51,6 @@ protected:
 	// this is also pretty important!
 	ts_central* get_central();
 
-	std::recursive_mutex& get_mutex();
 	tgui::Gui& get_gui();
 
 private:
@@ -78,10 +77,6 @@ inline void gui::register_tooltip(std::unique_ptr<tooltip_wrapper> tooltip) {
 
 inline ts_central* gui::get_central() {
 	return m_central;
-}
-
-inline std::recursive_mutex& gui::get_mutex() {
-	return m_mutex;
 }
 
 inline tgui::Gui& gui::get_gui() {

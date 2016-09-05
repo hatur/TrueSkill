@@ -21,7 +21,7 @@ void raid_data::init_from_file() {
 
 	m_initialized = false;
 
-	std::ifstream file{"data/raid_data.json", std::ios::in | std::ios::binary};
+	std::ifstream file{"../data/raid_data.json", std::ios::in | std::ios::binary};
 	file.imbue(std::locale{std::locale::classic(), new std::codecvt_utf8<wchar_t>});
 
 	if (!file.is_open()) {
@@ -51,7 +51,7 @@ void raid_data::init_from_file() {
 			wow_raid wowraid;
 			wowraid.m_raid_name = raid_data->get("raid_name").extract<std::string>();
 			wowraid.m_default_raid = raid_data->get("raid_default_raid").extract<int>() == 1;
-			wowraid.m_icon_path = std::string{"data/img/" + raid_data->get("raid_icon_name").extract<std::string>()};
+			wowraid.m_icon_path = std::string{"../data/wow_img/" + raid_data->get("raid_icon_name").extract<std::string>()};
 			wowraid.m_wcl_zone_id = static_cast<unsigned int>(raid_data->get("raid_wcl_id").extract<int>());
 			
 			auto bosses = raid_data->get("raid_bosses").extract<Array::Ptr>();
@@ -94,7 +94,7 @@ void raid_data::init_from_file() {
 				auto ach_name = achievement_data->get("ach_name").extract<std::string>();
 				ach_data.m_achievement_name = sf::String{ach_name};
 
-				std::cout << "* achievement: " << ach_id << " (type: " << ach_type << ")" << std::endl;
+				//std::cout << "* achievement: " << ach_id << " (type: " << ach_type << ")" << std::endl;
 
 				wowraid.m_armory_achievements.push_back(std::move(ach_data));
 			}
@@ -106,6 +106,7 @@ void raid_data::init_from_file() {
 	}
 	catch (Exception& ex) {
 		std::cout << "Error parsing raid data, reason: " << ex.displayText() << std::endl;
+		throw ts_exception{std::string{"Couldn't initialize raid data, reason: " + ex.displayText()}.c_str()};
 		m_initialized = false;
 	}
 }
@@ -308,6 +309,35 @@ float warcraftlogs_top_rankings::get_avg_pct(metric _metric, boss_difficulty bos
 
 	Ensures(false);
 	return 0.f;
+}
+
+wcl_top_overall_pct_information get_top_overall_avg_pct(const std::vector<warcraftlogs_top_rankings>& top_rankings, metric _metric, boss_difficulty bossdifficulty, bool bracket) {
+	float accumulated_percentage = 0.f;
+	unsigned int num_bosses = 0;
+
+	for (const auto& boss_ranking : top_rankings) {
+		if (boss_ranking.has_avg_pct(_metric, bossdifficulty, bracket)) {
+			accumulated_percentage += boss_ranking.get_avg_pct(_metric, bossdifficulty, bracket);
+			++num_bosses;
+		}
+	}
+
+	wcl_top_overall_pct_information information{};
+	information.m_has_value = num_bosses > 0;
+
+	if (information.m_has_value) {
+		const float avg_percentage = accumulated_percentage / static_cast<float>(num_bosses);
+
+		information.m_float_value = avg_percentage;
+		information.m_uint_value = static_cast<unsigned int>(std::round(avg_percentage));
+
+		std::stringstream ss;
+		ss << std::setprecision(number_of_digits(information.m_uint_value) + 2) << avg_percentage;
+
+		information.m_rounded_string_value = sf::String{ss.str()};
+	}
+
+	return information;
 }
 
 } // namespace ts

@@ -21,7 +21,7 @@ void main_gui::log_message(sf::String message) {
 void main_gui::build() {
 	auto lock = conc_lock<gui>(this);
 
-	m_tgui_theme = std::make_shared<tgui::Theme>("data/theme/default.tg");
+	m_tgui_theme = std::make_shared<tgui::Theme>("../data/theme/default.tg");
 
 	tgui::ToolTip::setTimeToDisplay(sf::seconds(2));
 	tgui::ToolTip::setDistanceToMouse({10.f, 10.f});
@@ -626,7 +626,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_bracket_bar_hc->setMinimum(0);
 						dps_bracket_bar_hc->setMaximum(100);
-						dps_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_bracket_bar_hc->setText("loading information..");
 						dps_bracket_bar_hc->setPosition(warcraftlogs_rankings_label->getPosition() + sf::Vector2f{0.f, warcraftlogs_rankings_label->getTextSize() + raid_instance_panel_inside_padding * 2});
 
@@ -636,7 +636,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_overall_bar_hc->setMinimum(0);
 						dps_overall_bar_hc->setMaximum(100);
-						dps_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_overall_bar_hc->setText("loading information..");
 						dps_overall_bar_hc->setPosition(dps_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, dps_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -648,7 +648,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_bracket_bar_m->setMinimum(0);
 						dps_bracket_bar_m->setMaximum(100);
-						dps_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_bracket_bar_m->setText("loading information..");
 						dps_bracket_bar_m->setPosition(dps_bracket_bar_hc->getPosition() + sf::Vector2f{dps_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -658,7 +658,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_overall_bar_m->setMinimum(0);
 						dps_overall_bar_m->setMaximum(100);
-						dps_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_overall_bar_m->setText("loading information..");
 						dps_overall_bar_m->setPosition(dps_overall_bar_hc->getPosition() + sf::Vector2f{dps_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -670,7 +670,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_median_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_median_bracket_bar_hc->setMinimum(0);
 						dps_median_bracket_bar_hc->setMaximum(100);
-						dps_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_median_bracket_bar_hc->setText("tbi [median bracket]");
 						dps_median_bracket_bar_hc->setPosition(dps_overall_bar_hc->getPosition() + sf::Vector2f{0.f, dps_overall_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -680,7 +680,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_median_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_median_overall_bar_hc->setMinimum(0);
 						dps_median_overall_bar_hc->setMaximum(100);
-						dps_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_median_overall_bar_hc->setText("tbi [overall bracket]");
 						dps_median_overall_bar_hc->setPosition(dps_median_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, dps_median_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -692,7 +692,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_median_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_median_bracket_bar_m->setMinimum(0);
 						dps_median_bracket_bar_m->setMaximum(100);
-						dps_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_median_bracket_bar_m->setText("tbi [median bracket]");
 						dps_median_bracket_bar_m->setPosition(dps_median_bracket_bar_hc->getPosition() + sf::Vector2f{dps_median_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -702,7 +702,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						dps_median_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						dps_median_overall_bar_m->setMinimum(0);
 						dps_median_overall_bar_m->setMaximum(100);
-						dps_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						dps_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						dps_median_overall_bar_m->setText("tbi [overall bracket]");
 						dps_median_overall_bar_m->setPosition(dps_median_overall_bar_hc->getPosition() + sf::Vector2f{dps_median_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -717,7 +717,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						tgui::Label::Ptr warcraftlogs_rankings_label = m_tgui_theme->load("RaidTypeHeading");
 						warcraftlogs_rankings_label->setText("WCL HPS Rankings");
 						warcraftlogs_rankings_label->setPosition(anchor_position);
-						warcraftlogs_rankings_label->setTextSize(14);
+						warcraftlogs_rankings_label->setTextSize(style_theme::wcl_progress_bar_height);
 
 						raid_instance_panel->add(warcraftlogs_rankings_label);
 
@@ -727,7 +727,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_bracket_bar_hc->setMinimum(0);
 						hps_bracket_bar_hc->setMaximum(100);
-						hps_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_bracket_bar_hc->setText("loading information..");
 						hps_bracket_bar_hc->setPosition(warcraftlogs_rankings_label->getPosition() + sf::Vector2f{0.f, warcraftlogs_rankings_label->getTextSize() + raid_instance_panel_inside_padding * 2});
 
@@ -737,7 +737,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_overall_bar_hc->setMinimum(0);
 						hps_overall_bar_hc->setMaximum(100);
-						hps_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_overall_bar_hc->setText("loading information..");
 						hps_overall_bar_hc->setPosition(hps_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, hps_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -749,7 +749,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_bracket_bar_m->setMinimum(0);
 						hps_bracket_bar_m->setMaximum(100);
-						hps_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_bracket_bar_m->setText("loading information..");
 						hps_bracket_bar_m->setPosition(hps_bracket_bar_hc->getPosition() + sf::Vector2f{hps_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -759,7 +759,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_overall_bar_m->setMinimum(0);
 						hps_overall_bar_m->setMaximum(100);
-						hps_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_overall_bar_m->setText("loading information..");
 						hps_overall_bar_m->setPosition(hps_overall_bar_hc->getPosition() + sf::Vector2f{hps_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -771,7 +771,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_median_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_median_bracket_bar_hc->setMinimum(0);
 						hps_median_bracket_bar_hc->setMaximum(100);
-						hps_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_median_bracket_bar_hc->setText("tbi [median bracket]");
 						hps_median_bracket_bar_hc->setPosition(hps_overall_bar_hc->getPosition() + sf::Vector2f{0.f, hps_overall_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -781,7 +781,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_median_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_median_overall_bar_hc->setMinimum(0);
 						hps_median_overall_bar_hc->setMaximum(100);
-						hps_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_median_overall_bar_hc->setText("tbi [overall bracket]");
 						hps_median_overall_bar_hc->setPosition(hps_median_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, hps_median_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -793,7 +793,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_median_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_median_bracket_bar_m->setMinimum(0);
 						hps_median_bracket_bar_m->setMaximum(100);
-						hps_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_median_bracket_bar_m->setText("tbi [median bracket]");
 						hps_median_bracket_bar_m->setPosition(hps_median_bracket_bar_hc->getPosition() + sf::Vector2f{hps_median_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -803,7 +803,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						hps_median_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						hps_median_overall_bar_m->setMinimum(0);
 						hps_median_overall_bar_m->setMaximum(100);
-						hps_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						hps_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						hps_median_overall_bar_m->setText("tbi [overall bracket]");
 						hps_median_overall_bar_m->setPosition(hps_median_overall_bar_hc->getPosition() + sf::Vector2f{hps_median_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -818,7 +818,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						tgui::Label::Ptr warcraftlogs_rankings_label = m_tgui_theme->load("RaidTypeHeading");
 						warcraftlogs_rankings_label->setText("WCL KRSI Rankings");
 						warcraftlogs_rankings_label->setPosition(anchor_position);
-						warcraftlogs_rankings_label->setTextSize(14);
+						warcraftlogs_rankings_label->setTextSize(style_theme::wcl_progress_bar_height);
 
 						raid_instance_panel->add(warcraftlogs_rankings_label);
 
@@ -828,7 +828,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_bracket_bar_hc->setMinimum(0);
 						krsi_bracket_bar_hc->setMaximum(100);
-						krsi_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_bracket_bar_hc->setText("loading information..");
 						krsi_bracket_bar_hc->setPosition(warcraftlogs_rankings_label->getPosition() + sf::Vector2f{0.f, warcraftlogs_rankings_label->getTextSize() + raid_instance_panel_inside_padding * 2});
 
@@ -838,7 +838,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_overall_bar_hc->setMinimum(0);
 						krsi_overall_bar_hc->setMaximum(100);
-						krsi_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_overall_bar_hc->setText("loading information..");
 						krsi_overall_bar_hc->setPosition(krsi_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, krsi_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -850,7 +850,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_bracket_bar_m->setMinimum(0);
 						krsi_bracket_bar_m->setMaximum(100);
-						krsi_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_bracket_bar_m->setText("loading information..");
 						krsi_bracket_bar_m->setPosition(krsi_bracket_bar_hc->getPosition() + sf::Vector2f{krsi_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -860,7 +860,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_overall_bar_m->setMinimum(0);
 						krsi_overall_bar_m->setMaximum(100);
-						krsi_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_overall_bar_m->setText("loading information..");
 						krsi_overall_bar_m->setPosition(krsi_overall_bar_hc->getPosition() + sf::Vector2f{krsi_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -872,7 +872,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_median_bracket_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_median_bracket_bar_hc->setMinimum(0);
 						krsi_median_bracket_bar_hc->setMaximum(100);
-						krsi_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_median_bracket_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_median_bracket_bar_hc->setText("tbi [median bracket]");
 						krsi_median_bracket_bar_hc->setPosition(krsi_overall_bar_hc->getPosition() + sf::Vector2f{0.f, krsi_overall_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -882,7 +882,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_median_overall_bar_hc->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_median_overall_bar_hc->setMinimum(0);
 						krsi_median_overall_bar_hc->setMaximum(100);
-						krsi_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_median_overall_bar_hc->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_median_overall_bar_hc->setText("tbi [overall bracket]");
 						krsi_median_overall_bar_hc->setPosition(krsi_median_bracket_bar_hc->getPosition() + sf::Vector2f{0.f, krsi_median_bracket_bar_hc->getSize().y + raid_instance_panel_inside_padding * 2});
 
@@ -894,7 +894,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_median_bracket_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_median_bracket_bar_m->setMinimum(0);
 						krsi_median_bracket_bar_m->setMaximum(100);
-						krsi_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_median_bracket_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_median_bracket_bar_m->setText("tbi [median bracket]");
 						krsi_median_bracket_bar_m->setPosition(krsi_median_bracket_bar_hc->getPosition() + sf::Vector2f{krsi_median_bracket_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -904,7 +904,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 						krsi_median_overall_bar_m->setFillDirection(tgui::ProgressBar::FillDirection::LeftToRight);
 						krsi_median_overall_bar_m->setMinimum(0);
 						krsi_median_overall_bar_m->setMaximum(100);
-						krsi_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, 14);
+						krsi_median_overall_bar_m->setSize(style_theme::wcl_progress_bar_width, style_theme::wcl_progress_bar_height);
 						krsi_median_overall_bar_m->setText("tbi [overall bracket]");
 						krsi_median_overall_bar_m->setPosition(krsi_median_overall_bar_hc->getPosition() + sf::Vector2f{krsi_median_overall_bar_hc->getSize().x + style_theme::wcl_horizontal_padding, 0.f});
 
@@ -923,6 +923,7 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 		// Finish / wait for the warcraftlogs ranking job
 		warcraftlogs_top_job.get();
 
+		// Copy retrieved informations
 		for (auto& raid : *local_raiddata->get_raids()) {
 			const auto it = std::find(wcl_selected_raids.cbegin(), wcl_selected_raids.cend(), raid.m_wcl_zone_id);
 
@@ -932,32 +933,15 @@ void main_gui::build_raid_layout(sf::String region, sf::String server, sf::Strin
 
 			raid.m_wcl_per_boss_top_rankings = std::move(warcraftlogs_raiddata_rankings_copy.get_raid(raid.m_raid_name)->m_wcl_per_boss_top_rankings);
 
-			// Calculate total
-			float accumulated_percentage = 0.f;
-			unsigned int total_bosses = 0;
-			for (const auto& boss_ranking : raid.m_wcl_per_boss_top_rankings) {
-				if (!boss_ranking.has_avg_pct(metric::DPS, boss_difficulty::heroic, false)) {
-					continue;
-				}
-				
-				const auto boss_avg = boss_ranking.get_avg_pct(metric::DPS, boss_difficulty::heroic, false);
-
-				//std::cout << "boss " << boss_ranking.m_boss_name.toAnsiString() << " avg: " << boss_avg << std::endl;
-
-				accumulated_percentage += boss_avg;
-				++total_bosses;
-			}
-
-			const float avg_percentage = accumulated_percentage / static_cast<float>(total_bosses);
-
-			tgui::Panel* raid_instance_panel = dynamic_cast<tgui::Panel*>(get_gui().get(raid.m_raid_name + "_panel", true).get());
-			tgui::ProgressBar* bar = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("dps_top_overall_bar_hc").get());
-			bar->setValue(static_cast<unsigned int>(std::round(avg_percentage)));
-			bar->setText("top overall - hc");
-
-			//std::cout << "Total percentage for " << raid.m_raid_name.toAnsiString() << ": " << avg_percentage << std::endl;
+			raid.m_has_brackets = warcraftlogs_raiddata_rankings_copy.get_raid(raid.m_raid_name)->m_has_brackets;
+			raid.m_wcl_brackets = std::move(warcraftlogs_raiddata_rankings_copy.get_raid(raid.m_raid_name)->m_wcl_brackets);
 		}
 
+		{
+			auto lock = conc_lock<gui>(this);
+			calculate_and_fill_top_percentages(*local_raiddata, warcraftlogs_raiddata_rankings_copy, wcl_selected_raids);
+		}
+		
 		// Finish / wait for the warcraftlogs parse job .. this may take time
 
 		warcraftlogs_median_job.get();
@@ -1017,6 +1001,56 @@ void main_gui::push_wait_message(sf::String message) {
 	auto wait_label = get_gui().get("wait_label", true);
 
 	dynamic_cast<tgui::Label*>(wait_label.get())->setText(std::move(message));
+}
+
+void main_gui::calculate_and_fill_top_percentages(raid_data& raiddata, raid_data& wcl_raiddata_rankings_copy, const std::vector<unsigned int>& wcl_selected_raids) {
+	for (auto& raid : *raiddata.get_raids()) {
+		const auto it = std::find(wcl_selected_raids.cbegin(), wcl_selected_raids.cend(), raid.m_wcl_zone_id);
+
+		if (it == wcl_selected_raids.cend()) {
+			continue;
+		}
+
+		auto avg_top_overall_dps_hc = get_top_overall_avg_pct(raid.m_wcl_per_boss_top_rankings, metric::DPS, boss_difficulty::heroic, false);
+		auto avg_top_overall_dps_m = get_top_overall_avg_pct(raid.m_wcl_per_boss_top_rankings, metric::DPS, boss_difficulty::mythic, false);
+
+		std::cout << "avg has value: " << avg_top_overall_dps_hc.m_has_value << ", " << avg_top_overall_dps_hc.m_float_value << " [" << avg_top_overall_dps_hc.m_uint_value << "]" << std::endl;
+
+		tgui::Panel* raid_instance_panel = dynamic_cast<tgui::Panel*>(get_gui().get(raid.m_raid_name + "_panel", true).get());
+
+		tgui::ProgressBar* bar_top_overall_dps_hc = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("dps_top_overall_bar_hc").get());
+		tgui::ProgressBar* bar_top_overall_dps_m = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("dps_top_overall_bar_m").get());
+		tgui::ProgressBar* bar_top_bracket_dps_hc = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("dps_top_bracket_bar_hc").get());
+		tgui::ProgressBar* bar_top_bracket_dps_m = dynamic_cast<tgui::ProgressBar*>(raid_instance_panel->get("dps_top_bracket_bar_m").get());
+
+		if (avg_top_overall_dps_hc.m_has_value) {
+			bar_top_overall_dps_hc->setValue(avg_top_overall_dps_hc.m_uint_value);
+			bar_top_overall_dps_hc->setText(sf::String{"[top/all HC]: "} + avg_top_overall_dps_hc.m_rounded_string_value + sf::String{"%"});
+		}
+		else {
+			bar_top_overall_dps_hc->setText(sf::String{"[top/all HC]: N/A"});
+		}
+
+		if (avg_top_overall_dps_m.m_has_value) {
+			bar_top_overall_dps_m->setValue(avg_top_overall_dps_hc.m_uint_value);
+			bar_top_overall_dps_m->setText(sf::String{"[top/all M]: "} +avg_top_overall_dps_m.m_rounded_string_value + sf::String{"%"});
+		}
+		else {
+			bar_top_overall_dps_m->setText(sf::String{"[top/all M]: N/A"});
+		}
+
+		//if (total_bosses_top_overall_dps_m > 0) {
+		//	const float avg_percentage_dps_m = acc_pct_dps_m / static_cast<float>(total_bosses_top_overall_dps_m);
+		//	const unsigned int rounded_pct = static_cast<unsigned int>(std::round(avg_percentage_dps_m));
+		//	bar_top_overall_dps_m->setValue(rounded_pct);
+		//	bar_top_overall_dps_m->setText(sf::String{"[top overall m]: "} +sf::String{std::to_string(rounded_pct)} +sf::String{"%"});
+		//}
+		//else {
+		//	bar_top_overall_dps_m->setText(sf::String{"[top overall m]: N/A"});
+		//}
+
+		//std::cout << "Total percentage for " << raid.m_raid_name.toAnsiString() << ": " << avg_percentage << std::endl;
+	}
 }
 
 void main_gui::fill_armory_character_statistics_tooltip(tgui::Panel* tooltip, const wow_raid& raid, boss_difficulty bossdifficulty) {

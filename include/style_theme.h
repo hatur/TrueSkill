@@ -12,6 +12,7 @@ public:
 
 	static const int progress_bar_width{140};
 	static const int wcl_progress_bar_width{97};
+	static const int wcl_progress_bar_height{18};
 	static const int wcl_horizontal_padding{2};
 };
 

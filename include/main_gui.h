@@ -37,6 +37,8 @@ private:
 
 	void push_wait_message(sf::String message);
 
+	void calculate_and_fill_top_percentages(raid_data& raiddata, raid_data& wcl_raiddata_rankings_copy, const std::vector<unsigned int>& wcl_selected_raids);
+
 	std::shared_ptr<tgui::Theme> m_tgui_theme{nullptr};
 	std::unique_ptr<raid_data> m_cached_raiddata{nullptr};
 	std::atomic<bool> m_request_ongoing{false};
@@ -44,7 +46,7 @@ private:
 	tgui::ChatBox::Ptr m_log_box{nullptr};
 };
 
-std::pair<bool, float> calculate_avg_pct(std::vector<float> content);
+//std::pair<bool, float> calculate_avg_pct(std::vector<float> content);
 
 // free functions
 

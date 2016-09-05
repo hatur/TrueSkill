@@ -20,7 +20,7 @@ thread_pool::thread_pool()
 		}
 	}();
 
-	const auto created_threads = (m_num_extra_cores + 1) * 24;
+	const auto created_threads = (m_num_extra_cores + 1) * 6;
 
 	std::cout << "thread_pool(): starting " << created_threads << " threads" << std::endl;
 

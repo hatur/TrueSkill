@@ -1,0 +1,55 @@
+Button {
+	TextColorNormal : rgba(180, 30, 30, 255);
+}
+
+Panel.SearchPanel {
+	BackGroundColor : rgb(10, 10, 10);
+}
+
+Panel.WaitLayout {
+	BackGroundColor : rgb(10, 10, 10);
+}
+
+Panel.RaidOuter {
+	BackGroundColor : rgb(20, 10, 30);
+}
+
+Panel.RaidInner {
+	BackGroundColor : rgb(40, 20, 60);
+}
+
+Panel.ToolTip {
+	BackGroundColor : rgba(10, 10, 10, 180);
+}
+
+Label.WaitLabel {
+	TextColor : rgb(56, 145, 255);
+}
+
+Label.RaidHeading {
+	TextColor : rgb(255, 255, 255);
+}
+
+Label.RaidTypeHeading {
+	TextColor : rgb(255, 255, 185);
+}
+
+Label.RaidInfo {
+	TextColor : rgb(255, 255, 255);
+}
+
+Label.ToolTip_Killed {
+	TextColor : rgb(40, 255, 62);
+}
+
+Label.ToolTip_Open {
+	TextColor : rgb(251, 244, 28);
+}
+
+Label.RoleSelectionText {
+	TextColor : rgb(255, 255, 255);
+}
+
+CheckBox.RoleSelection {
+	TextColor : rgb(255, 255, 255);
+}

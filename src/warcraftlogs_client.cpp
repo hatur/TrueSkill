@@ -41,7 +41,21 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 	Poco::UnicodeConverter::toUTF8(server.toWideString(), utf8_server);
 	Poco::UnicodeConverter::toUTF8(name.toWideString(), utf8_name);
 
-	std::mutex per_raid_content_mutex;
+	auto bracket_information = retrieve_bracket_information(wcl_selected_raids);
+
+	for (const auto& raid_bracket : bracket_information) {
+		std::cout << "Bracket information for " << io_raiddata_copy.get_raid(raid_bracket.m_wcl_raid_id)->m_raid_name.toAnsiString() << ": " << std::endl;
+		for (const auto& bracket : raid_bracket.m_brackets) {
+			std::cout << bracket.m_id << ": " << bracket.m_bracket_name.toAnsiString() << std::endl;
+		}
+
+		if (raid_bracket.m_brackets.size() == 0) {
+			std::cout << "-> No brackets found " << std::endl;
+			io_raiddata_copy.get_raid(raid_bracket.m_wcl_raid_id)->m_has_brackets = false;
+		}
+	}
+
+	//std::mutex per_raid_content_mutex;
 	std::vector<std::pair<unsigned int, std::future<std::pair<wcl_job_information, sf::String>>>> jobs;
 	std::vector<std::pair<wcl_job_information, std::string>> per_raid_content;
 
@@ -68,7 +82,7 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 				}
 			};
 
-			jobs.push_back(std::make_pair(job_id, threadpool.job([utf8_name, utf8_server, region, zone_id(raid.m_wcl_zone_id), _metric] {
+			jobs.push_back(std::make_pair(job_id, std::async(std::launch::async, [utf8_name, utf8_server, region, zone_id(raid.m_wcl_zone_id), _metric] {
 				URI uri;
 				uri.setScheme("https");
 				uri.setAuthority("www.warcraftlogs.com");
@@ -77,7 +91,7 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 				uri.addQueryParameter("metric", metric_to_string_metric(_metric));
 				uri.addQueryParameter("api_key", "a44c1090cf2b560cc8306eeef9002fdc");
 
-				std::cout << "warcraftlogs_client::retrieve_ranking_log_data(): Request path: " << uri.getPathAndQuery() << std::endl;
+				//std::cout << "warcraftlogs_client::retrieve_ranking_log_data(): Request path: " << uri.getPathAndQuery() << std::endl;
 
 				auto content = send_warcraftlogs_request(uri);
 
@@ -92,7 +106,7 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 
 			// If it is Hellfire Citadel, we need to get the default rankings and the pre-patch rankings
 			if (raid.m_wcl_zone_id == 8) {
-				jobs.push_back(std::make_pair(job_id, threadpool.job([utf8_name, utf8_server, region, zone_id(raid.m_wcl_zone_id), _metric]{
+				jobs.push_back(std::make_pair(job_id, std::async(std::launch::async, [utf8_name, utf8_server, region, zone_id(raid.m_wcl_zone_id), _metric]{
 					URI uri;
 					uri.setScheme("https");
 					uri.setAuthority("www.warcraftlogs.com");
@@ -102,7 +116,7 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 					uri.addQueryParameter("partition", std::to_string(2));
 					uri.addQueryParameter("api_key", "a44c1090cf2b560cc8306eeef9002fdc");
 
-					std::cout << "warcraftlogs_client::retrieve_ranking_log_data(): Request path: " << uri.getPathAndQuery() << " (HFC partition 2)" << std::endl;
+					//std::cout << "warcraftlogs_client::retrieve_ranking_log_data(): Request path: " << uri.getPathAndQuery() << " (HFC partition 2)" << std::endl;
 
 					auto content = send_warcraftlogs_request(uri);
 
@@ -213,7 +227,7 @@ void warcraftlogs_client::retrieve_ranking_log_data(sf::String region, sf::Strin
 					}
 				}
 
-				std::cout << "finished report" << std::endl;
+				//std::cout << "finished report" << std::endl;
 			}
 
 			//std::cout << "End data for raid with id: " << content.first << std::endl;
@@ -269,7 +283,7 @@ void warcraftlogs_client::retrieve_parse_log_data(sf::String region, sf::String 
 			uri.addQueryParameter("zone", std::to_string(zone_id));
 			uri.addQueryParameter("api_key", "a44c1090cf2b560cc8306eeef9002fdc");
 
-			std::cout << "warcraftlogs_client::retrieve_parse_log_data(): Request path: " << uri.getPathAndQuery() << std::endl;
+			//std::cout << "warcraftlogs_client::retrieve_parse_log_data(): Request path: " << uri.getPathAndQuery() << std::endl;
 
 			return send_warcraftlogs_request(uri);
 		})));
@@ -289,6 +303,80 @@ void warcraftlogs_client::retrieve_parse_log_data(sf::String region, sf::String 
 	}
 }
 
+std::vector<wcl_raid_bracket_raid> warcraftlogs_client::retrieve_bracket_information(const std::vector<unsigned int>& wcl_selected_raids) {
+	using namespace Poco;
+	using namespace Poco::JSON;
+
+	std::vector<std::pair<unsigned int, std::future<sf::String>>> jobs;
+
+	for (auto wcl_zone : wcl_selected_raids) {
+		jobs.push_back(std::make_pair(wcl_zone, std::async(std::launch::async, [] {
+			URI uri;
+			uri.setScheme("https");
+			uri.setAuthority("www.warcraftlogs.com");
+			uri.setPath("/v1/zones");
+			uri.addQueryParameter("api_key", "a44c1090cf2b560cc8306eeef9002fdc");
+			
+			return send_warcraftlogs_request(uri);
+		})));
+	}
+
+	std::vector<wcl_raid_bracket_raid> raid_bracket_raids;
+
+	for (auto& job : jobs) {
+		auto& content = job.second.get();
+
+		try {
+			Parser parser;
+
+			auto parse_result = parser.parse(content);
+			const auto json_arr = parse_result.extract<Array::Ptr>();
+
+			for (const auto& entry : *json_arr) {
+				const auto entry_obj = entry.extract<Object::Ptr>();
+				const auto entry_id = entry_obj->get("id").extract<int>();
+				
+				if (entry_id != job.first) {
+					continue;
+				}
+
+				if (!entry_obj->has("brackets")) {
+					std::cout << "Raid with id " << entry_id << " has no brackets!" << std::endl;
+					continue;
+				}
+
+				wcl_raid_bracket_raid raid_bracket_raid{};
+				raid_bracket_raid.m_wcl_raid_id = entry_id;
+
+				const auto brackets = entry_obj->get("brackets").extract<Array::Ptr>();
+
+				std::cout << "Brackets for zone with id " << job.first << std::endl;
+
+				for (const auto& bracket : *brackets) {
+					const auto bracket_obj = bracket.extract<Object::Ptr>();
+
+					const auto bracket_id = bracket_obj->get("id").extract<int>();
+					const auto bracket_name = bracket_obj->get("name").extract<std::string>();
+
+					wcl_raid_bracket raid_bracket{};
+					raid_bracket.m_id = bracket_id;
+					raid_bracket.m_bracket_name = sf::String{std::move(bracket_name)};
+
+					raid_bracket_raid.m_brackets.push_back(std::move(raid_bracket));
+				}
+
+				raid_bracket_raids.push_back(std::move(raid_bracket_raid));
+			}
+		}
+		catch (const Poco::Exception& ex) {
+			std::cout << "Error: Couldn't retrieve bracket information for zone with id: " << job.first << ", reason: " << ex.displayText() << std::endl;
+			return std::vector<wcl_raid_bracket_raid>{};
+		}
+	}
+
+	return raid_bracket_raids;
+}
+
 sf::String send_warcraftlogs_request(const Poco::URI& uri) {
 	using namespace Poco::Net;
 
@@ -299,7 +387,6 @@ sf::String send_warcraftlogs_request(const Poco::URI& uri) {
 
 	HTTPSClientSession session{uri.getHost(), uri.getPort(), ts::config::sslContext};
 
-	bool request_success = false;
 	std::string content;
 
 	try {
@@ -324,14 +411,9 @@ sf::String send_warcraftlogs_request(const Poco::URI& uri) {
 		}
 
 		content = std::string{std::istreambuf_iterator<char>{is},{}};
-
-		request_success = true;
 	}
 	catch (const Poco::Exception& ex) {
-		std::cout << "Request failed, reason: " << ex.what() << std::endl;
-	}
-
-	if (!request_success) {
+		std::cout << "Request failed, reason: " << ex.displayText() << std::endl;
 		throw ts_exception{"Request didn't yield expected content"};
 	}
 

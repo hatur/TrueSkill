@@ -1,0 +1,125 @@
+{
+	"raids":[
+		{
+			"raid_name":"Highmaul",
+			"raid_default_raid":0,
+			"raid_icon_name":"highmaul.png",
+			"raid_wcl_id":6,
+			"raid_bosses":[
+				{"boss_name":"Kargath Bladefist", "boss_wcl_id":1721},
+				{"boss_name":"The Butcher", "boss_wcl_id":1706},
+				{"boss_name":"Tectus", "boss_wcl_id":1722},
+				{"boss_name":"Brackenspore", "boss_wcl_id":1720},
+				{"boss_name":"Twin Ogron", "boss_wcl_id":1719},
+				{"boss_name":"Ko'ragh", "boss_wcl_id":1723},
+				{"boss_name":"Imperator Mar'gok", "boss_wcl_id":1705}
+			],
+			"raid_achievements":[
+				{"type":"mythic_boss_ach","ach_id":8949,"ach_name":"Mythic: Kargath Bladefist"},
+				{"type":"mythic_boss_ach","ach_id":8960,"ach_name":"Mythic: The Butcher"},
+				{"type":"mythic_boss_ach","ach_id":8961,"ach_name":"Mythic: Tectus"},
+				{"type":"mythic_boss_ach","ach_id":8962,"ach_name":"Mythic: Brackenspore"},
+				{"type":"mythic_boss_ach","ach_id":8963,"ach_name":"Mythic: Twin Ogron"},
+				{"type":"mythic_boss_ach","ach_id":8964,"ach_name":"Mythic: Ko'ragh"},
+				{"type":"mythic_boss_ach","ach_id":8965,"ach_name":"Mythic: Imperator's Fall"},
+				{"type":"meta_ach","ach_id":9441,"ach_name":"Ahead of the Curve: Imperator's Fall"}
+			]
+		},
+		{
+			"raid_name":"Blackrock Foundry",
+			"raid_default_raid":0,
+			"raid_icon_name":"blackrock_foundry.png",
+			"raid_wcl_id":7,
+			"raid_bosses":[
+				{"boss_name":"Gruul", "boss_wcl_id":1691},
+				{"boss_name":"Oregorger", "boss_wcl_id":1696},
+				{"boss_name":"The Blast Furnace", "boss_wcl_id":1690},
+				{"boss_name":"Beastlord Darmac", "boss_wcl_id":1694},
+				{"boss_name":"Operator Thogar", "boss_wcl_id":1692},
+				{"boss_name":"The Iron Maidens", "boss_wcl_id":1695},
+				{"boss_name":"Hans'gar and Franzok", "boss_wcl_id":1693},
+				{"boss_name":"Flamebender Ka'graz", "boss_wcl_id":1689},
+				{"boss_name":"Kromog", "boss_wcl_id":1713},
+				{"boss_name":"Blackhand", "boss_wcl_id":1704}
+			],
+			"raid_achievements":[
+				{"type":"mythic_boss_ach","ach_id":8966,"ach_name":"Mythic: Gruul"},
+				{"type":"mythic_boss_ach","ach_id":8967,"ach_name":"Mythic: Oregorger"},
+				{"type":"mythic_boss_ach","ach_id":8970,"ach_name":"Mythic: Blast Furnace"},
+				{"type":"mythic_boss_ach","ach_id":8956,"ach_name":"Mythic: Beastlord Darmac"},
+				{"type":"mythic_boss_ach","ach_id":8969,"ach_name":"Mythic: Operator Thogar"},
+				{"type":"mythic_boss_ach","ach_id":8972,"ach_name":"Mythic: Iron Maidens"},
+				{"type":"mythic_boss_ach","ach_id":8968,"ach_name":"Mythic: Hans'gar and Franzok"},
+				{"type":"mythic_boss_ach","ach_id":8932,"ach_name":"Mythic: Flamebender Ka'graz"},
+				{"type":"mythic_boss_ach","ach_id":8971,"ach_name":"Mythic: Kromog"},
+				{"type":"mythic_boss_ach","ach_id":8973,"ach_name":"Mythic: Blackhand's Crucible"},
+				{"type":"meta_ach","ach_id":9444,"ach_name":"Ahead of the Curve: Blackhand's Crucible"}
+			]
+		},
+		{
+			"raid_name":"Hellfire Citadel",
+			"raid_default_raid":1,
+			"raid_icon_name":"hellfire_citadel.png",
+			"raid_wcl_id":8,
+			"raid_bosses":[
+				{"boss_name":"Hellfire Assault", "boss_wcl_id":1778},
+				{"boss_name":"Iron Reaver", "boss_wcl_id":1785},
+				{"boss_name":"Kormrok", "boss_wcl_id":1787},
+				{"boss_name":"Hellfire High Council", "boss_wcl_id":1798},
+				{"boss_name":"Kilrogg Deadeye", "boss_wcl_id":1786},
+				{"boss_name":"Gorefiend", "boss_wcl_id":1783},
+				{"boss_name":"Shadow-Lord Iskar", "boss_wcl_id":1788},
+				{"boss_name":"Socrethar the Eternal", "boss_wcl_id":1794},
+				{"boss_name":"Tyrant Velhari", "boss_wcl_id":1784},
+				{"boss_name":"Fel Lord Zakuun", "boss_wcl_id":1777},
+				{"boss_name":"Xhul'horac", "boss_wcl_id":1800},
+				{"boss_name":"Mannoroth", "boss_wcl_id":1795},
+				{"boss_name":"Archimonde", "boss_wcl_id":1799}
+			],
+			"raid_achievements":[
+				{"type":"mythic_boss_ach","ach_id":10027,"ach_name":"Mythic: Hellfire Assault"},
+				{"type":"mythic_boss_ach","ach_id":10032,"ach_name":"Mythic: Iron Reaver"},
+				{"type":"mythic_boss_ach","ach_id":10033,"ach_name":"Mythic: Iron Kormrok"},
+				{"type":"mythic_boss_ach","ach_id":10034,"ach_name":"Mythic: Hellfire High Council"},
+				{"type":"mythic_boss_ach","ach_id":10035,"ach_name":"Mythic: Kilrogg Deadeye"},
+				{"type":"mythic_boss_ach","ach_id":10253,"ach_name":"Mythic: Gorefiend"},
+				{"type":"mythic_boss_ach","ach_id":10037,"ach_name":"Mythic: Shadow-Lord Iskar"},
+				{"type":"mythic_boss_ach","ach_id":10040,"ach_name":"Mythic: Socrethar the Eternal"},
+				{"type":"mythic_boss_ach","ach_id":10041,"ach_name":"Mythic: Tyrant Velhari"},
+				{"type":"mythic_boss_ach","ach_id":10038,"ach_name":"Mythic: Fel Lord Zakuun"},
+				{"type":"mythic_boss_ach","ach_id":10039,"ach_name":"Mythic: Xhul'horac"},
+				{"type":"mythic_boss_ach","ach_id":10042,"ach_name":"Mythic: Mannoroth"},
+				{"type":"mythic_boss_ach","ach_id":10043,"ach_name":"Mythic: Archimonde"},
+				{"type":"meta_ach","ach_id":10044,"ach_name":"Ahead of the Curve: The Black Gate"}
+			],
+			"wcl_brackets":[
+			]
+		},
+		{
+			"raid_name":"The Emerald Nightmare",
+			"raid_default_raid":1,
+			"raid_icon_name":"the_emerald_nightmare.png",
+			"raid_wcl_id":10,
+			"raid_bosses":[
+				{"boss_name":"Nythendra", "boss_wcl_id":1853},
+				{"boss_name":"Il'gynoth, Heart of Corruption", "boss_wcl_id":1873},
+				{"boss_name":"Elerethe Renferal", "boss_wcl_id":1876},
+				{"boss_name":"Ursoc", "boss_wcl_id":1841},
+				{"boss_name":"Dragons of Nightmare", "boss_wcl_id":1854},
+				{"boss_name":"Cenarius", "boss_wcl_id":1877},
+				{"boss_name":"Xavius", "boss_wcl_id":1864}
+			],
+			"raid_achievements":[
+				{"type":"mythic_boss_ach","ach_id":10821,"ach_name":"Mythic: Nythendra"},
+				{"type":"mythic_boss_ach","ach_id":10823,"ach_name":"Mythic: Il'gynoth"},
+				{"type":"mythic_boss_ach","ach_id":10822,"ach_name":"Mythic: Elerethe Renferal"},
+				{"type":"mythic_boss_ach","ach_id":10824,"ach_name":"Mythic: Ursoc"},
+				{"type":"mythic_boss_ach","ach_id":10825,"ach_name":"Mythic: Dragons of Nightmare"},
+				{"type":"mythic_boss_ach","ach_id":10826,"ach_name":"Mythic: Cenarius"},
+				{"type":"mythic_boss_ach","ach_id":10827,"ach_name":"Mythic: Xavius"},
+				{"type":"meta_ach","ach_id":11194,"ach_name":"Ahead of the Curve: Xavius"},
+				{"type":"meta_ach","ach_id":11191,"ach_name":"Cutting Edge: Xavius"}
+			]
+		}
+	]
+}

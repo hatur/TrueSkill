@@ -42,19 +42,19 @@ std::vector<realm> armory_client::retrieve_realm_list(std::string region) {
 
 	try {
 		Parser parser;
-		auto result = parser.parse(content);
+		const auto result = parser.parse(content);
 
-		auto json_object = result.extract<Object::Ptr>();
+		const auto json_object = result.extract<Object::Ptr>();
 		
 		std::vector<realm> realmlist;
 
 		auto realmArr = json_object->get("realms").extract<Array::Ptr>();
 		
 		for (const auto& realmEntry : *realmArr) {
-			auto entryObject = realmEntry.extract<Object::Ptr>();
-			auto country = entryObject->get("locale").extract<std::string>();
+			const auto entry_object = realmEntry.extract<Object::Ptr>();
+			auto country = entry_object->get("locale").extract<std::string>();
 			country = country.substr(country.find("_") + 1);
-			auto name = entryObject->get("name").extract<std::string>();
+			const auto name = entry_object->get("name").extract<std::string>();
 
 			//std::cout << "Found [" << country << "] " << name << std::endl;
 
@@ -112,16 +112,16 @@ void armory_client::retrieve_raid_data(sf::String region, sf::String server, sf:
 		Parser parser;
 		auto result = parser.parse(content);
 
-		auto json_object = result.extract<Object::Ptr>();
+		const auto json_object = result.extract<Object::Ptr>();
 
-		auto achievements_data = json_object->get("achievements").extract<Object::Ptr>();
-		auto achievements_completed = achievements_data->get("achievementsCompleted").extract<Array::Ptr>();
+		const auto achievements_data = json_object->get("achievements").extract<Object::Ptr>();
+		const auto achievements_completed = achievements_data->get("achievementsCompleted").extract<Array::Ptr>();
 
 		std::cout << "Found " << achievements_completed->size() << " achievements!" << std::endl;
 
 		for (auto& raid : *io_raiddata_copy.get_raids()) {
 			for (auto& achievement : raid.m_armory_achievements) {
-				auto it = std::find(achievements_completed->begin(), achievements_completed->end(), achievement.m_achievement_id);
+				const auto it = std::find(achievements_completed->begin(), achievements_completed->end(), achievement.m_achievement_id);
 
 				if (it == achievements_completed->end()) {
 					achievement.m_unlocked = false;
@@ -134,35 +134,36 @@ void armory_client::retrieve_raid_data(sf::String region, sf::String server, sf:
 			}
 		}
 
-		auto progression_data = json_object->get("progression").extract<Object::Ptr>();
-		auto progression_raids_data = progression_data->get("raids").extract<Array::Ptr>();
+		const auto progression_data = json_object->get("progression").extract<Object::Ptr>();
+		const auto progression_raids_data = progression_data->get("raids").extract<Array::Ptr>();
 
 		for (auto& raid : *io_raiddata_copy.get_raids()) {
-			auto it = std::find_if(progression_raids_data->begin(), progression_raids_data->end(), [raid] (const Dynamic::Var& var) {
+			const auto it = std::find_if(progression_raids_data->begin(), progression_raids_data->end(), [raid] (const Dynamic::Var& var) {
 				auto raid_obj = var.extract<Object::Ptr>();
-				return raid_obj->get("name").extract<std::string>() == raid.m_raid_name;
+				auto online_raid_name = raid_obj->get("name").extract<std::string>();
+				return online_raid_name == raid.m_raid_name;
 			});
 
 			if (it == progression_raids_data->end()) {
 				throw ts_exception("armory_client::retrieve_raid_data(): couldn't find matching raid from progression data in the wow api");
 			}
 
-			auto raid_obj = it->extract<Object::Ptr>();
-			auto boss_arr = raid_obj->get("bosses").extract<Array::Ptr>();
+			const auto raid_obj = it->extract<Object::Ptr>();
+			const auto boss_arr = raid_obj->get("bosses").extract<Array::Ptr>();
 
 			std::cout << "Raid has " << boss_arr->size() << " bosses" << std::endl;
 
 			for (auto& statistics : raid.m_armory_boss_statistics) {
 				std::cout << "Searching for " << statistics.m_boss_name.toAnsiString() << std::endl;
-				auto it2 = std::find_if(boss_arr->begin(), boss_arr->end(), [&statistics] (const Dynamic::Var& var) {
+				const auto it2 = std::find_if(boss_arr->begin(), boss_arr->end(), [&statistics] (const Dynamic::Var& var) {
 					return var.extract<Object::Ptr>()->get("name").extract<std::string>() == statistics.m_boss_name;
 				});
 
 				if (it2 == boss_arr->end()) {
-					throw ts_exception("armory_client::retrieve_raid_data(): couldn't find matching raid from progression data in the wow api");
+					throw ts_exception(std::string{"armory_client::retrieve_raid_data(): couldn't find" + statistics.m_boss_name.toAnsiString() + " in the armory json data"}.c_str());
 				}
 
-				auto boss_obj = it2->extract<Object::Ptr>();
+				const auto boss_obj = it2->extract<Object::Ptr>();
 
 				// This is too static and may only work for raids that have fixed nhc/hc/m modes
 				statistics.m_num_nhc_kills = static_cast<unsigned int>(boss_obj->get("normalKills").extract<int32_t>());
